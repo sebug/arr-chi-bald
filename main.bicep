@@ -515,22 +515,34 @@ resource arrVM 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   }
 }
 
+resource arrVmExtension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = if ((securityType == 'TrustedLaunch') && ((securityProfileJson.uefiSettings.secureBootEnabled == true) && (securityProfileJson.uefiSettings.vTpmEnabled == true))) {
+  parent: arrVM
+  name: extensionName
+  location: location
+  properties: {
+    publisher: extensionPublisher
+    type: extensionName
+    typeHandlerVersion: extensionVersion
+    autoUpgradeMinorVersion: true
+    settings: {
+      AttestationConfig: {
+        MaaSettings: {
+          maaEndpoint: maaEndpoint
+          maaTenantName: maaTenantName
+        }
+      }
+    }
+  }
+}
 
-resource arrVMPostCreationScript 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = {
+
+resource arrVmPostCreationScript 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   parent: arrVM
   name: 'ARRPrerequisites'
   location: location
   properties: {
-    publisher: 'Microsoft.Azure.Extensions'
-    type: 'CustomScript'
-    typeHandlerVersion: '2.0'
-    autoUpgradeMinorVersion: true
-    settings: {
-     fileUris: [
-      'https://download.microsoft.com/download/E/9/8/E9849D6A-020E-47E4-9FD0-A023E99B54EB/requestRouter_amd64.msi'
-      'https://raw.githubusercontent.com/sebug/arr-chi-bald/main/arr.ps1'
-     ]
-     commandToExecute: 'powershell.exe -ExecutionPolicy Bypass arr.ps1'
+    source: {
+      scriptUri: 'https://raw.githubusercontent.com/sebug/arr-chi-bald/main/arr.ps1'
     }
   }
 }
