@@ -468,11 +468,6 @@ resource arrVM 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       computerName: arrVmName
       adminUsername: adminUsername
       adminPassword: adminPassword
-      linuxConfiguration: {
-        patchSettings: {
-          patchMode: 'ImageDefault'
-        }
-      }
     }
     storageProfile: {
       imageReference: {
@@ -532,6 +527,7 @@ resource arrVMPostCreationScript 'Microsoft.Compute/virtualMachines/extensions@2
     autoUpgradeMinorVersion: true
     settings: {
      fileUris: [
+      'https://download.microsoft.com/download/E/9/8/E9849D6A-020E-47E4-9FD0-A023E99B54EB/requestRouter_amd64.msi'
       'https://raw.githubusercontent.com/sebug/arr-chi-bald/main/arr.ps1'
      ]
      commandToExecute: 'powershell.exe -ExecutionPolicy Bypass arr.ps1'
